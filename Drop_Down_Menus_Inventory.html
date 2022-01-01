@@ -1,47 +1,60 @@
 <head>
     <title>DropDown List</title>
     <link rel="stylesheet" href="/files/theme/Dropdown.css">
+    <script src="/files/theme/Button_Click.js"></script>
 </head>
 <body>
-    <form class="left">
+    <div class="wrap-flex">
         <label>Aluminum</label>
-        <select name = "AluminumDropdown">
-            <option value = "Pipe">Pipe</option>
-            <option value = "Round Bar">Round Bar</option>
-            <option value = "Flat Bar">Flat Bar</option>
-            <option value = "Channel">Channel</option>
-            <option value = "HSS Square Tubing">HSS Square Tubing</option>
-            <option value = "WT Beam">WT Beam</option>
-            <option value = "W Beam">W Beam</option>
-            <option value = "Angle">Angle</option>
-        </select>
-    </form>
-
-    <form class="center">
         <label>Stainless Steel</label>
-        <select name = "StainlessSteelDropdown">
-            <option value = "Pipe">Pipe</option>
-            <option value = "Round Bar">Round Bar</option>
-            <option value = "Flat Bar">Flat Bar</option>
-            <option value = "Channel">Channel</option>
-            <option value = "HSS Square Tubing">HSS Square Tubing</option>
-            <option value = "WT Beam">WT Beam</option>
-            <option value = "W Beam">W Beam</option>
-            <option value = "Angle">Angle</option>
-        </select>
-    </form>
-
-    <form class="right">
         <label>Carbon Steel</label>
-        <select name = "CarbonSteelDropdown">
-            <option value = "Pipe">Pipe</option>
-            <option value = "Round Bar">Round Bar</option>
-            <option value = "Flat Bar">Flat Bar</option>
-            <option value = "Channel">Channel</option>
-            <option value = "HSS Square Tubing">HSS Square Tubing</option>
-            <option value = "WT Beam">WT Beam</option>
-            <option value = "W Beam">W Beam</option>
-            <option value = "Angle">Angle</option>
-        </select>
-    </form>
+    </div>
+
+    <!-- all of our drop down menus -->
+    <div class="wrap-flex">
+        <form>
+            <select name = "AluminumDropdown" onchange="submitform('Aluminum ' + this.value)">
+                <option value = "Pipes">Pipes</option>
+                <option value = "Round Bars">Round Bars</option>
+                <option value = "Flat Bars">Flat Bars</option>
+                <option value = "Channels">Channels</option>
+                <option value = "HSS Square Tubings">HSS Square Tubings</option>
+                <option value = "WT Beams">WT Beams</option>
+                <option value = "W Beams">W Beams</option>
+                <option value = "Angles">Angles</option>
+            </select>
+        </form>
+
+        <form>
+            <select name = "StainlessSteelDropdown" onchange="submitform('Stainless Steel ' + this.value)">
+                <option value = "Pipes">Pipes</option>
+                <option value = "Round Bars">Round Bars</option>
+                <option value = "Flat Bars">Flat Bars</option>
+                <option value = "Channels">Channels</option>
+                <option value = "HSS Square Tubings">HSS Square Tubings</option>
+                <option value = "WT Beams">WT Beams</option>
+                <option value = "W Beams">W Beams</option>
+                <option value = "Angles">Angles</option>
+            </select>
+        </form>
+
+        <form>
+            <select name = "CarbonSteelDropdown" onchange="submitform('Carbon Steel ' + this.value)">
+                <option value = "Pipes">Pipes</option>
+                <option value = "Round Bars">Round Bars</option>
+                <option value = "Flat Bars">Flat Bars</option>
+                <option value = "Channels">Channels</option>
+                <option value = "HSS Square Tubings">HSS Square Tubings</option>
+                <option value = "WT Beams">WT Beams</option>
+                <option value = "W Beams">W Beams</option>
+                <option value = "Angles">Angles</option>
+            </select>
+        </form>
+    </div> 
+
+    <!-- spacing for drop down menus -->
+    <p class="DropdownSpacing"></p>  
+
+    <h1 id="Table_Section_Header">None Selected</h1>
+    <hr/>
 </body>

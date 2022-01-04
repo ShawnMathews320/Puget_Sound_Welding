@@ -5,6 +5,8 @@
 </head>
 <body>
     <script>
+    var tableNumber;  // global variable keeps track of tables so we can reference them later
+
     function makeApiCall(valueOriginal, valueModified, action="read") 
     {  
 		if (valueOriginal != undefined)
@@ -13,7 +15,7 @@
 			valueOriginal = valueOriginal.replace(/\s/g, "");
 			document.getElementById('Table_Section_Header').innerHTML = valueModified;
 			document.getElementById('Table_Section_Image').src = "/files/theme/" + valueOriginal + ".PNG";
-			
+            
             // api starts here
             var ssID = '1UT7O5soGVwHUQaGCE7ujVqLOpqN3EAYCRtHR7J4Pzs4';
             var rng = 'Sheet1';
@@ -115,9 +117,31 @@
         
     function populatesheet(result)  // function to get values from google sheets and put them into front-end website tables
     {
+        // do this after tables have been created so we can delete them
+        if (document.getElementById("table1") != null)  
+        {
+            while (tableNumber > 0)  // looks at each table we have
+            {                
+                var parent = document.getElementById("table" + tableNumber)  // find our table
+                while(parent.hasChildNodes())  // look at each of the table's contents
+                {
+                parent.removeChild(parent.firstChild);  // remove it
+                }
+                
+                parent.parentNode.removeChild(parent);  // remove the element so we can give the name to another table
+                parent.style.borderWidth = "0px";  // removes borders so they will no longer show
+                parent.style.display = "none";  // completely hides table and returns space on page
+                tableNumber --;  // subtract one from tmp variable
+            }
+        }
+
         // google sheets note: for EndofSheet leave one cell blank and for end of table leave two cells blank
         var body = document.getElementsByTagName("body")[0];  // create new table
         var tbl = document.createElement("table");
+
+        // number our tables so we can reference them later
+        tbl.id = "table1"
+        tableNumber = 1;
         var tblBody = document.createElement("tbody");
         var noTableDuplicates = 0;  // this will make sure none of the tables are duplicated after the loop has iterated over a whole table
         var headerRows = 0;  // keeps track of which rows get special header styles
@@ -151,6 +175,9 @@
                                 cell.colSpan = result.values[allRows - 1].length;
                                 cell.style.padding = "10px";
                                 cell.style.textAlign = "center";
+                                cell.style.borderColor = "Black";
+                                cell.style.borderStyle = "solid";
+                                cell.style.borderWidth = "1px";
                                 var cellText = document.createTextNode(result.values[rlength]);
                             }
                         }
@@ -192,12 +219,16 @@
                     break;
                 }
                 else if(result.values[allRows + 2].length != 0)  // check if any tables left
-                {
+                {                    
                     headerRows = 0;  // reset variable because looking at new table now
                     allRows ++;  // skip over empty cells to move onto next table because still tables left
                     noTableDuplicates = allRows + 1;  // this is the integer where the loop will begin again at the top
                     var body = document.getElementsByTagName("body")[0];  // create new table
+                   
                     var tbl = document.createElement("table");
+                    tableNumber += 1;  // new table so give it a different value
+                    tbl.id = "table" + tableNumber
+
                     var tblBody = document.createElement("tbody");
                     tbl.style.marginTop = "75px";
                 }

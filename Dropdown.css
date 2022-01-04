@@ -1,15 +1,38 @@
-label {
-    display: inline-block;
+/* use flex-boxes to align our drop down menus on a single line */
+.wrap-flex{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
 }
 
-.right {
-    text-align: right;
+/* use flex-boxes to align our material name and its image on a single line */
+.HeaderWImage{
+  display: flex;
+  flex-wrap: wrap;
 }
 
-.left {
-    text-align: left;
+/* sets the size of the material image */
+.HeaderWImage img {
+  height: 14em; 
 }
 
-.center {
-    text-align: center;
+/* aligns the material name with its image */
+.HeaderWImage h1 {
+  align-self: center;
+  font-family: Arial, Helvetica, sans-serif;
+  color: black;
+}
+
+/* text above the drop-down menus */
+label{
+    font-family: Arial, Helvetica, sans-serif;
+    color: black;
+    font-size: medium;
+    font-weight: bold;
+}
+
+/* white space here allows our drop down menus to not overlap anything else*/
+.DropdownSpacing {
+    margin-top: 20%;
 }

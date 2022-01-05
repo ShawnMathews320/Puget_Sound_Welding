@@ -15,7 +15,7 @@
 			valueOriginal = valueOriginal.replace(/\s/g, "");
 			document.getElementById('Table_Section_Header').innerHTML = valueModified;
 			document.getElementById('Table_Section_Image').src = "/files/theme/" + valueOriginal + ".PNG";
-            
+
             // api starts here
             var ssID = '1UT7O5soGVwHUQaGCE7ujVqLOpqN3EAYCRtHR7J4Pzs4';
             var rng = 'Sheet1';
@@ -53,7 +53,7 @@
                 {
                     // TODO: Change code below to process the `response` object:
                     console.log(response.result);
-                    populatesheet(response.result);
+                    populatesheet(valueModified, response.result);
                 }, function(reason) 
                 {
                     console.error('error: ' + reason.result.error.message);
@@ -115,7 +115,7 @@
     //     gapi.auth2.getAuthInstance().signOut();
     // }
         
-    function populatesheet(result)  // function to get values from google sheets and put them into front-end website tables
+    function populatesheet(materialType, result)  // function to get values from google sheets and put them into front-end website tables
     {
         // do this after tables have been created so we can delete them
         if (document.getElementById("table1") != null)  
@@ -143,16 +143,30 @@
         tbl.id = "table1"
         tableNumber = 1;
         var tblBody = document.createElement("tbody");
-        var noTableDuplicates = 0;  // this will make sure none of the tables are duplicated after the loop has iterated over a whole table
+        var noTableDuplicates = 2;  // this will make sure none of the tables are duplicated after the loop has iterated over a whole table
         var headerRows = 0;  // keeps track of which rows get special header styles
-        
-        for(var allRows=0; allRows<result.values.length; allRows++)  // goes through all rows in google sheets page/s
+        var startingPoint;  // will tell us where to start the loop
+
+        for(var tableRows=0; tableRows<result.values.length; tableRows++)  // find where to start searching in sheets
         {
-            if (result.values[allRows].length == 0)  // this is one cell after the table ends on sheets
+            if(result.values[tableRows] == materialType + " Start")
+            {
+                startingPoint = tableRows + 2;
+                console.log(startingPoint);
+                break;
+            }
+        }
+
+        // goes through specified range in google sheets page/s
+        for(var allRows=startingPoint; allRows<result.values.length; allRows++)  
+        {
+            // this is one cell after the table ends on sheets
+            if (result.values[allRows].length == 0)  
             {	
-                for(var rlength=noTableDuplicates; rlength<allRows; rlength++)  // creates rows
+                //console.log(result.values[allRows - 1])
+                for(var rlength=startingPoint; rlength<allRows; rlength++)  // creates rows
                 {
-                    if(headerRows == 0 || headerRows == 1)  // these are the header rows
+                    if(headerRows == 0 || headerRows == 1 || headerRows == 2)  // these are the header rows
                     {
                         var rRow = document.createElement("tr");
                         rRow.style.backgroundColor = "orange";
@@ -167,7 +181,8 @@
                     headerRows++;  // increment to look at next row 
                     for(var col=0; col<result.values[allRows - 1].length; col++)  // creates columns (grabs length of previous array)
                     {
-                        if(rlength == noTableDuplicates)  // looking at the first row
+                        // looking at the first and second row
+                        if(rlength == startingPoint || rlength == startingPoint + 1)  
                         {
                             if(col == 0)  // looking at the first column in the first row because we only want one column in that row
                             {
@@ -214,7 +229,7 @@
                 tbl.style.borderWidth = "1px";
                 //tbl.style.borderCollapse = "collapse";					  
 
-                if(result.values[allRows + 1].length == 1 && result.values[allRows + 1] == "EndOfSheet")  // end of sheet
+                if(result.values[allRows + 1].length == 1 && result.values[allRows + 1] == materialType + " End")  // end of type
                 {
                     break;
                 }
@@ -222,7 +237,7 @@
                 {                    
                     headerRows = 0;  // reset variable because looking at new table now
                     allRows ++;  // skip over empty cells to move onto next table because still tables left
-                    noTableDuplicates = allRows + 1;  // this is the integer where the loop will begin again at the top
+                    startingPoint = allRows + 1;  // this is the integer where the loop will begin again at the top
                     var body = document.getElementsByTagName("body")[0];  // create new table
                    
                     var tbl = document.createElement("table");

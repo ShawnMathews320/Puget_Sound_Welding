@@ -9,7 +9,16 @@
 
     function makeApiCall(valueOriginal, valueModified, action="read") 
     {  
-		if (valueOriginal != undefined)
+        if (valueOriginal == "Select Material:")  // blank option to show user they can click on the drop down menu
+        {
+            document.getElementById('Table_Section_Header').innerHTML = valueOriginal;
+			document.getElementById('Table_Section_Image').src = "";
+            if (document.getElementById("table1") != null)  
+            {
+                deleteTables();  // clear tables because nothing is selected
+            }
+        }
+		else if (valueOriginal != undefined && valueOriginal != "Select Material:")  // run the api when the data is not undefined
 		{
 			// change text of material and its image
 			valueOriginal = valueOriginal.replace(/\s/g, "");
@@ -114,25 +123,58 @@
     // {
     //     gapi.auth2.getAuthInstance().signOut();
     // }
-        
+    
+    function createTableModal()
+    {
+        // Get the modal
+        var modal = document.getElementById("myModal");
+
+        // When the user clicks on the button, open the modal
+        modal.style.display = "block";
+
+        // Get the <span> element that closes the modal
+        var span = document.getElementsByClassName("close")[0];
+
+        // When the user clicks on <span> (x), close the modal
+        span.onclick = function() 
+        {
+            modal.style.display = "none";
+        }
+
+        // When the user clicks anywhere outside of the modal, close it
+        window.onclick = function(event) 
+        {
+            if (event.target == modal) 
+            {
+                modal.style.display = "none";
+            }
+        }
+    }
+
+    function deleteTables()
+    {
+        // do this after tables have been created so we can delete them
+        while (tableNumber > 0)  // looks at each table we have
+        {                
+            var parent = document.getElementById("table" + tableNumber)  // find our table
+            while(parent.hasChildNodes())  // look at each of the table's contents
+            {
+            parent.removeChild(parent.firstChild);  // remove it
+            }
+                
+            parent.parentNode.removeChild(parent);  // remove the element so we can give the name to another table
+            parent.style.borderWidth = "0px";  // removes borders so they will no longer show
+            parent.style.display = "none";  // completely hides table and returns space on page
+            tableNumber --;  // subtract one from tmp variable
+       }
+    }
+
     function populatesheet(materialType, result)  // function to get values from google sheets and put them into front-end website tables
     {
         // do this after tables have been created so we can delete them
         if (document.getElementById("table1") != null)  
         {
-            while (tableNumber > 0)  // looks at each table we have
-            {                
-                var parent = document.getElementById("table" + tableNumber)  // find our table
-                while(parent.hasChildNodes())  // look at each of the table's contents
-                {
-                parent.removeChild(parent.firstChild);  // remove it
-                }
-                
-                parent.parentNode.removeChild(parent);  // remove the element so we can give the name to another table
-                parent.style.borderWidth = "0px";  // removes borders so they will no longer show
-                parent.style.display = "none";  // completely hides table and returns space on page
-                tableNumber --;  // subtract one from tmp variable
-            }
+            deleteTables();
         }
 
         // google sheets note: for EndofSheet leave one cell blank and for end of table leave two cells blank
@@ -143,7 +185,6 @@
         tbl.id = "table1"
         tableNumber = 1;
         var tblBody = document.createElement("tbody");
-        var noTableDuplicates = 2;  // this will make sure none of the tables are duplicated after the loop has iterated over a whole table
         var headerRows = 0;  // keeps track of which rows get special header styles
         var startingPoint;  // will tell us where to start the loop
 
@@ -152,7 +193,6 @@
             if(result.values[tableRows] == materialType + " Start")
             {
                 startingPoint = tableRows + 2;
-                console.log(startingPoint);
                 break;
             }
         }
@@ -196,24 +236,25 @@
                                 var cellText = document.createTextNode(result.values[rlength]);
                             }
                         }
-                    else  // this is for all other 'normal rows and columns'
-                    {	
-                        var cell = document.createElement("td");
-                        cell.style.borderColor = "Black";
-                        cell.style.borderStyle = "solid";
-                        cell.style.borderWidth = "1px";
-                        cell.style.padding = "10px";
-                        var cellText = document.createTextNode(result.values[rlength][col]);
-						cell.style.color = "black";
-                    }	
-        
-                    if(col + 1 == result.values[allRows - 1].length && headerRows != 1 && headerRows != 2)
-                    {
-                        cell.contentEditable = "true";
-                    }
-                    
-                    cell.appendChild(cellText);			  
-                    rRow.appendChild(cell);
+                        else  // this is for all other 'normal rows and columns'
+                        {	
+                            var cell = document.createElement("td");
+                            cell.style.borderColor = "Black";
+                            cell.style.borderStyle = "solid";
+                            cell.style.borderWidth = "1px";
+                            cell.style.padding = "10px";
+                            var cellText = document.createTextNode(result.values[rlength][col]);
+                            cell.style.color = "black";
+                        }	
+            
+                        if(col + 1 == result.values[allRows - 1].length && headerRows != 1 && headerRows != 2 && headerRows != 3)
+                        {
+                            cell.contentEditable = "true";
+                            cell.onclick = createTableModal;
+                        }
+                        
+                        cell.appendChild(cellText);			  
+                        rRow.appendChild(cell);
                     }
         
                     tblBody.appendChild(rRow);
@@ -249,7 +290,6 @@
                 }
                 else 
                 {
-                    console.log("break");
                     break;  // end loop because there are no tables left
                 }
             }			 
@@ -272,7 +312,8 @@
     <!-- all of our drop down menus -->
     <div class="wrap-flex">
         <form>
-            <select name = "AluminumDropdown" onchange="makeApiCall(this.value, 'Aluminum ' + this.value)">
+            <select id="DropDownAluminum" name = "AluminumDropdown" onchange="makeApiCall(this.value, 'Aluminum ' + this.value)">
+                <option value="Select Material:">Select Material:</option>
                 <option value = "Pipes">Pipes</option>
                 <option value = "Round Bars">Round Bars</option>
                 <option value = "Flat Bars">Flat Bars</option>
@@ -285,7 +326,8 @@
         </form>
 
         <form>
-            <select name = "StainlessSteelDropdown" onchange="makeApiCall(this.value, 'Stainless Steel ' + this.value)">
+            <select id="DropDownSS" name = "StainlessSteelDropdown" onchange="makeApiCall(this.value, 'Stainless Steel ' + this.value)">
+                <option value="Select Material:">Select Material:</option>
                 <option value = "Pipes">Pipes</option>
                 <option value = "Round Bars">Round Bars</option>
                 <option value = "Flat Bars">Flat Bars</option>
@@ -298,7 +340,8 @@
         </form>
 
         <form>
-            <select name = "CarbonSteelDropdown" onchange="makeApiCall(this.value, 'Carbon Steel ' + this.value)">
+            <select id="DropDownCS" name = "CarbonSteelDropdown" onchange="makeApiCall(this.value, 'Carbon Steel ' + this.value)">
+                <option value="Select Material:">Select Material:</option>
                 <option value = "Pipes">Pipes</option>
                 <option value = "Round Bars">Round Bars</option>
                 <option value = "Flat Bars">Flat Bars</option>
@@ -322,4 +365,14 @@
 
     <!-- section break with line -->
     <hr/>
+
+    <!-- The Modal -->
+    <div id="myModal" class="modal">
+        <!-- Modal content -->
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <p>Some text in the Modal..</p>
+        </div>
+  </div>
+
 </body>

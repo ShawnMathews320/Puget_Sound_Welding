@@ -1,11 +1,13 @@
 <head>
     <title>DropDown List</title>
     <link rel="stylesheet" href="/files/theme/Dropdown.css">
-    <script src="/files/theme/Google_API_Sheets.js"></script>
+    <!-- <script src="/files/theme/Google_API_Sheets.js"></script> -->
 </head>
 <body>
     <script>
     var tableNumber;  // global variable keeps track of tables so we can reference them later
+    var nameOfHeader;  // text in table header first row & column
+    var nameOfSubheader // text in table header second row & column
 
     function makeApiCall(valueOriginal, valueModified, action="read") 
     {  
@@ -96,8 +98,8 @@
             'discoveryDocs': ['https://sheets.googleapis.com/$discovery/rest?version=v4'],
             }).then(function() 
             {
-                gapi.auth2.getAuthInstance().isSignedIn.listen(updateSignInStatus);
-                updateSignInStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
+                //gapi.auth2.getAuthInstance().isSignedIn.listen(updateSignInStatus);
+                //updateSignInStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
             });
     }
         
@@ -124,21 +126,53 @@
     //     gapi.auth2.getAuthInstance().signOut();
     // }
     
-    function createTableModal()
-    {
+    function createCellModal(location, rawValue, tableHeader, tableSubheader)
+    {        
+        // find our cell
+        var ourCell = document.getElementById(location)
+
+        // make the cell's background yellow so it stands out
+        ourCell.style.backgroundColor = "yellow";
+
         // Get the modal
         var modal = document.getElementById("myModal");
 
-        // When the user clicks on the button, open the modal
+        // open the modal
         modal.style.display = "block";
 
         // Get the <span> element that closes the modal
         var span = document.getElementsByClassName("close")[0];
 
+        // get int value of cell
+        var rawValue = ourCell.textContent.replace(" (Click to Edit)", "");
+
+        // if the last char is an s
+        if (tableHeader.slice(-1) == s)
+        {
+            if (rawValue == 1)  // 1 is singular, so remove s
+            {
+                tableHeader = tableHeader.slice(0, -1);
+            }
+        }
+        else  // last char is not an s
+        {
+            if (rawValue != 1)  // everything other than 1 is singular, so add s
+            {
+                tableHeader += "s";
+            }
+        }
+
+        // add unique text to header
+        document.getElementById("HeaderModal").innerHTML = rawValue + " " + tableHeader + " - (" + tableSubheader + ").";
+
+        // // add unique text to subheader
+        //document.getElementById("SubheaderModal").innerHTML = tableSubheader;
+
         // When the user clicks on <span> (x), close the modal
         span.onclick = function() 
         {
             modal.style.display = "none";
+            ourCell.style.backgroundColor = "white";  // return cell's color to white
         }
 
         // When the user clicks anywhere outside of the modal, close it
@@ -147,6 +181,7 @@
             if (event.target == modal) 
             {
                 modal.style.display = "none";
+                ourCell.style.backgroundColor = "white";  // return cell's color to white
             }
         }
     }
@@ -159,7 +194,7 @@
             var parent = document.getElementById("table" + tableNumber)  // find our table
             while(parent.hasChildNodes())  // look at each of the table's contents
             {
-            parent.removeChild(parent.firstChild);  // remove it
+                parent.removeChild(parent.firstChild);  // remove it
             }
                 
             parent.parentNode.removeChild(parent);  // remove the element so we can give the name to another table
@@ -209,7 +244,7 @@
                     if(headerRows == 0 || headerRows == 1 || headerRows == 2)  // these are the header rows
                     {
                         var rRow = document.createElement("tr");
-                        rRow.style.backgroundColor = "orange";
+                        rRow.style.backgroundColor = "#ababab";
                         rRow.style.fontWeight = "bolder";
                         rRow.style.fontStyle = "arial";
 						rRow.style.color = "black";
@@ -221,24 +256,35 @@
                     headerRows++;  // increment to look at next row 
                     for(var col=0; col<result.values[allRows - 1].length; col++)  // creates columns (grabs length of previous array)
                     {
-                        // looking at the first and second row
+                        // looking at the first and second rows
                         if(rlength == startingPoint || rlength == startingPoint + 1)  
                         {
                             if(col == 0)  // looking at the first column in the first row because we only want one column in that row
                             {
-                                var cell = document.createElement("td");
+                                var cell = document.createElement("td");                                
                                 cell.colSpan = result.values[allRows - 1].length;
                                 cell.style.padding = "10px";
                                 cell.style.textAlign = "center";
                                 cell.style.borderColor = "Black";
                                 cell.style.borderStyle = "solid";
                                 cell.style.borderWidth = "1px";
+                                
                                 var cellText = document.createTextNode(result.values[rlength]);
+
+                                if (rlength == startingPoint)
+                                {
+                                    nameOfHeader = cellText.textContent;  // text in table header first row & column
+                                }
+                                else
+                                {
+                                    nameOfSubheader = cellText.textContent;  // text in table header first row & column
+                                }
+                                                                
                             }
                         }
                         else  // this is for all other 'normal rows and columns'
                         {	
-                            var cell = document.createElement("td");
+                            var cell = document.createElement("td");                        
                             cell.style.borderColor = "Black";
                             cell.style.borderStyle = "solid";
                             cell.style.borderWidth = "1px";
@@ -247,10 +293,20 @@
                             cell.style.color = "black";
                         }	
             
+                        // these are the editable cells
                         if(col + 1 == result.values[allRows - 1].length && headerRows != 1 && headerRows != 2 && headerRows != 3)
                         {
-                            cell.contentEditable = "true";
-                            cell.onclick = createTableModal;
+                            // add text to cell's textContent
+                            cellText.textContent += " (Click to Edit)";   
+
+                            // make cell's id unique
+                            cell.id = rlength;
+                            
+                            // cells perform this function when they are clicked
+                            cell.onclick = function()
+                            { 
+                                createCellModal(this.id, this.textContent, nameOfHeader, nameOfSubheader);  // send the cells unique id and cellText
+                            };                             
                         }
                         
                         cell.appendChild(cellText);			  
@@ -368,11 +424,23 @@
 
     <!-- The Modal -->
     <div id="myModal" class="modal">
-        <!-- Modal content -->
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <p>Some text in the Modal..</p>
-        </div>
+
+    <!-- Modal content -->
+    <div class="modal-content">
+      <div class="modal-header">
+        <span class="close">&times;</span>
+        <h2 id="HeaderModal"></h2>
+        <h3 id="SubheaderModal"></h3>
+      </div>
+      <div class="modal-body">
+        <p>Some text in the Modal Body</p>
+        <button id="ConfirmButtonModal">Confirm</button>
+      </div>
+      <div class="modal-footer">
+        <h4 id="FooterModal">Note: changes will not be made until the "Confirm" button is clicked.</h4>
+      </div>
+    </div>
+  
   </div>
 
 </body>

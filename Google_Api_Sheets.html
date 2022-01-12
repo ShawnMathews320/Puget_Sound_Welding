@@ -136,7 +136,7 @@
 
         // Get the modal
         var modal = document.getElementById("myModal");
-
+         
         // open the modal
         modal.style.display = "block";
 
@@ -145,6 +145,8 @@
 
         // get int value of cell
         var rawValue = ourCell.textContent.replace(" (Click to Edit)", "");
+
+        document.getElementById("editInputLabel").innerHTML = "Current Item Count: " + rawValue;
 
         // if the last char is an s
         if (tableHeader.slice(-1) == s)
@@ -163,7 +165,7 @@
         }
 
         // add unique text to header
-        document.getElementById("HeaderModal").innerHTML = rawValue + " " + tableHeader + " - (" + tableSubheader + ").";
+        document.getElementById("HeaderModal").innerHTML = rawValue + " " + tableHeader + " - (" + tableSubheader + ")";
 
         // // add unique text to subheader
         //document.getElementById("SubheaderModal").innerHTML = tableSubheader;
@@ -387,10 +389,10 @@
                 <option value = "Pipes">Pipes</option>
                 <option value = "Round Bars">Round Bars</option>
                 <option value = "Flat Bars">Flat Bars</option>
-                <option value = "Channels">Channels</option>
+                <option value = "Channels" hidden>Channels</option>
                 <option value = "HSS Square Tubings">HSS Square Tubings</option>
-                <option value = "WT Beams">WT Beams</option>
-                <option value = "W Beams">W Beams</option>
+                <option value = "WT Beams" hidden>WT Beams</option>
+                <option value = "W Beams" hidden>W Beams</option>
                 <option value = "Angles">Angles</option>
             </select>
         </form>
@@ -429,15 +431,25 @@
     <div class="modal-content">
       <div class="modal-header">
         <span class="close">&times;</span>
-        <h2 id="HeaderModal"></h2>
-        <h3 id="SubheaderModal"></h3>
+        <h1 id="HeaderModal"></h1>
+        <h2 id="SubheaderModal"></h2>
       </div>
       <div class="modal-body">
-        <p>Some text in the Modal Body</p>
-        <button id="ConfirmButtonModal">Confirm</button>
+        <form class="modal-wrap-flex">
+            <h1 id="editInputLabel"></h1>
+            <label id="">Change Current Count</label>
+            <input class="editInputSpacing" type="text" id="editInput" name="editInput" placeholder="Enter new integer">  
+            <button class="modalBodySpacing" id="modalSubtract1">View Changes</button>
+
+            <label id="">Quick Add/Subtract</label>
+            <button id="modalAdd1">Add 1</button>
+            <button id="modalSubtract1" class="modalBodySpacing">Subtract 1</button>
+            <label id="">Submit Changes</label>
+            <button id="ConfirmButtonModal">Confirm</button>
+         </form>        
       </div>
       <div class="modal-footer">
-        <h4 id="FooterModal">Note: changes will not be made until the "Confirm" button is clicked.</h4>
+        <h3 id="FooterModal">Note: changes will not be made until the "Confirm" button is clicked.</h3>
       </div>
     </div>
   

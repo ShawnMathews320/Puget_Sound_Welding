@@ -6,6 +6,13 @@
   flex-wrap: wrap;
 }
 
+/* content in our modal body (white space) */
+.modal-wrap-flex{
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  flex-direction: column;
+}
 /* use flex-boxes to align our material name and its image on a single line */
 .HeaderWImage{
   display: flex;
@@ -54,6 +61,7 @@ label{
 
 /* Modal Content */
 .modal-content {
+  font-family: Arial, Helvetica, sans-serif;
   position: relative;
   background-color: #fefefe;
   margin: auto;
@@ -86,6 +94,7 @@ label{
   font-weight: bold;
 }
 
+/* when mouse hovers over button */
 .close:hover,
 .close:focus {
   color: #000;
@@ -93,16 +102,58 @@ label{
   cursor: pointer;
 }
 
+/* header of our modal */
 .modal-header {
-  padding: 2px 16px;
+  padding: 0px 15px;
   background-color: orange;
   color: black;
+  font-weight: bold;
 }
 
-.modal-body {padding: 2px 16px;}
+/* body of our modal */
+.modal-body {
+  text-align: center;
+}
 
+/* footer of our modal */
 .modal-footer {
-  padding: 2px 16px;
+  padding: 0px 15px;
   background-color: orange;
   color: black;
+  font-weight: bolder;
+  
+}
+
+/* text that display item count in modal body */
+#editInputLabel {
+  color: black;
+  font-weight: bold;
+  margin-bottom: 3%;
+}
+
+/* add spacing to bottom */
+.modalBodySpacing{
+  margin-bottom: 4%;
+}
+
+/* set width and spacing of button */
+#modalAdd1{
+  margin-bottom: 1%;
+  width: 175px;
+}
+
+/* set width of button */
+#modalSubtract1{
+  width: 175px;
+}
+
+/* set width and spacing of button */
+#ConfirmButtonModal{
+  width: 175px;
+  margin-bottom: 4%;
+}
+
+/* set spacing of input field */
+.editInputSpacing{
+  margin-bottom: 1%;
 }

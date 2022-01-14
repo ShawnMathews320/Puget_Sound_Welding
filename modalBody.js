@@ -74,14 +74,28 @@ function modalConfirmButton()
         // close modal
         modal.style.display = "none";
 
+        // scroll to cell so user can see cell that was changed
+        document.getElementById(cellLocation).scrollIntoView({behavior: "smooth", block: "end", inline: "nearest"});
+
+        tableCell.className = "cell-Animation";
+        
+        // document.getElementById("myDIV").style.backgroundClip = "effect";
+        
         // return cell's color to white
-        tableCell.style.backgroundColor = "white";  
+        //tableCell.style.backgroundColor = "white";  
+    }
+    else
+    {
+        alert("No changes have been made!");
     }
     
 }
 
 function createCellModal(location, rawValue, tableHeader, tableSubheader)
     {  
+        // scroll to cell so it is in view while modal opens
+        document.getElementById(location).scrollIntoView({behavior: "smooth", block: "end", inline: "nearest"});
+
         //set var so whole script can see location of cell   
         cellLocation = location;
 

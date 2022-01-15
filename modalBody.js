@@ -1,5 +1,7 @@
 var tmp;  // placeholder for currentCount
 var cellLocation;  // so we can find our cell
+var sheetCellColumnLocation;  // so we can find our cell column on Google Sheets
+var sheetCellRowLocation;  // so we can find our cell row on Google Sheets
 var onlyOneCurrentCount = false; // we only want the current count var to be changed once each time the modal is opened
 var currentCount;  // value from cell
 
@@ -71,18 +73,20 @@ function modalConfirmButton()
         // set text in the cell
         tableCell.textContent = tmp + " (Click to Edit)";
 
+        // update table cell in google sheets
+        makeApiCallWrite(parseInt(tableCell.className), parseInt(tableCell.id) + 1, tmp);
+
         // close modal
         modal.style.display = "none";
 
         // scroll to cell so user can see cell that was changed
         document.getElementById(cellLocation).scrollIntoView({behavior: "smooth", block: "end", inline: "nearest"});
 
-        tableCell.className = "cell-Animation";
-        
+        //tableCell.className = "cell-Animation";
         // document.getElementById("myDIV").style.backgroundClip = "effect";
         
         // return cell's color to white
-        //tableCell.style.backgroundColor = "white";  
+        tableCell.style.backgroundColor = "white";  
     }
     else
     {
@@ -237,7 +241,7 @@ function createCellModal(location, rawValue, tableHeader, tableSubheader)
                         {
                             if(col == 0)  // looking at the first column in the first row because we only want one column in that row
                             {
-                                var cell = document.createElement("td");                                
+                                var cell = document.createElement("td");                                                              
                                 cell.colSpan = result.values[allRows - 1].length;
                                 cell.style.padding = "10px";
                                 cell.style.textAlign = "center";
@@ -275,6 +279,9 @@ function createCellModal(location, rawValue, tableHeader, tableSubheader)
                             // add text to cell's textContent
                             cellText.textContent += " (Click to Edit)";   
 
+                            // column of cell on Google Sheet
+                            cell.className  = (col + 1)
+                            
                             // make cell's id unique
                             cell.id = rlength;
                             
@@ -328,71 +335,205 @@ function createCellModal(location, rawValue, tableHeader, tableSubheader)
         }	      
     }
 
-    function makeApiCall(valueOriginal, valueModified, action="read") 
-    {  
-        if (valueOriginal == "Select Material:")  // blank option to show user they can click on the drop down menu
-        {
-            document.getElementById('Table_Section_Header').innerHTML = valueOriginal;
-			document.getElementById('Table_Section_Image').src = "";
-            if (document.getElementById("table1") != null)  
-            {
-                deleteTables();  // clear tables because nothing is selected
-            }
-        }
-		else if (valueOriginal != undefined && valueOriginal != "Select Material:")  // run the api when the data is not undefined
-		{
-			// change text of material and its image
-			valueOriginal = valueOriginal.replace(/\s/g, "");
-			document.getElementById('Table_Section_Header').innerHTML = valueModified;
-			document.getElementById('Table_Section_Image').src = "/files/theme/" + valueOriginal + ".PNG";
-
-            // api starts here
-            var ssID = '1UT7O5soGVwHUQaGCE7ujVqLOpqN3EAYCRtHR7J4Pzs4';
-            var rng = 'Sheet1';
-            
-            // writing to sheets
-            if(action == "write")
-            {
-                var params = 
-                {
-                    spreadsheetId: ssID,  // The ID of the spreadsheet to retrieve data from.
-                    range: rng,   // The A1 notation of the values to retrieve.
-                    valueInputOption: 'RAW',
-                };
-                    
-                var valueRangeBody = { "values": vals }; 
-                var request = gapi.client.sheets.spreadsheets.values.update(params, valueRangeBody);
-                request.then(function(response) 
-                {
-                    // TODO: Change code below to process the `response` object:
-                }, function(reason) 
-                {
-                    console.error('error: ' + reason.result.error.message);
-                });
-            }   // end writing sheets
-            else // reading from sheets
-            {
-                var params = 
-                {
-                    spreadsheetId: ssID,  // The ID of the spreadsheet to retrieve data from.
-                    range: rng,   // The A1 notation of the values to retrieve.
-                };
-                
-                var request = gapi.client.sheets.spreadsheets.values.get(params);
-                request.then(function(response) 
-                {
-                    // TODO: Change code below to process the `response` object:
-                    console.log(response.result);
-                    populatesheet(valueModified, response.result);
-                }, function(reason) 
-                {
-                    console.error('error: ' + reason.result.error.message);
-                });
-            }
-        }
-
-        // end reading sheets
+// convert cellColumn to char b/c Google Sheets needs a char
+function calculateCellLetter(valueToConvert)
+{
+    if (valueToConvert == 1)
+    {
+        valueToConvert = 'A';
     }
+    else if (valueToConvert == 2)
+    {
+        valueToConvert = 'B';
+    }
+    else if (valueToConvert == 3)
+    {
+        valueToConvert = 'C';
+    }
+    else if (valueToConvert == 4)
+    {
+        valueToConvert = 'D';
+    }
+    else if (valueToConvert == 5)
+    {
+        valueToConvert = 'E';
+    }
+    else if (valueToConvert == 6)
+    {
+        valueToConvert = 'F';
+    }
+    else if (valueToConvert == 7)
+    {
+        valueToConvert = 'G';
+    }
+    else if (valueToConvert == 8)
+    {
+        valueToConvert = 'H';
+    }
+    else if (valueToConvert == 9)
+    {
+        valueToConvert = 'I';
+    }
+    else if (valueToConvert == 10)
+    {
+        valueToConvert = 'J';
+    }
+    else if (valueToConvert == 11)
+    {
+        valueToConvert = 'K';
+    }
+    else if (valueToConvert == 12)
+    {
+        valueToConvert = 'L';
+    }
+    else if (valueToConvert == 13)
+    {
+        valueToConvert = 'M';
+    }
+    else if (valueToConvert == 14)
+    {
+        valueToConvert = 'N';
+    }
+    else if (valueToConvert == 15)
+    {
+        valueToConvert = 'O';
+    }
+    else if (valueToConvert == 16)
+    {
+        valueToConvert = 'P';
+    }
+    else if (valueToConvert == 17)
+    {
+        valueToConvert = 'Q';
+    }
+    else if (valueToConvert == 18)
+    {
+        valueToConvert = 'R';
+    }
+    else if (valueToConvert == 19)
+    {
+        valueToConvert = 'S';
+    }
+    else if (valueToConvert == 20)
+    {
+        valueToConvert = 'T';
+    }
+    else if (valueToConvert == 21)
+    {
+        valueToConvert = 'U';
+    }
+    else if (valueToConvert == 22)
+    {
+        valueToConvert = 'V';
+    }
+    else if (valueToConvert == 23)
+    {
+        valueToConvert = 'W';
+    }
+    else if (valueToConvert == 24)
+    {
+        valueToConvert = 'X';
+    }
+    else if (valueToConvert == 25)
+    {
+        valueToConvert = 'Y';
+    }
+    else if (valueToConvert == 26)
+    {
+        valueToConvert = 'Z';
+    }
+
+    // return the char
+    return valueToConvert;
+}
+
+// writing to Google Sheets
+function makeApiCallWrite(cellColumn, cellRow, cellValue) 
+{
+    cellColumn = calculateCellLetter(cellColumn);
+    console.log(cellColumn);
+
+    var ssID = "1ZcIsDq_8INVhSjVX3xs1r9g-5OQCVbKAx7Q4_slHCBE"
+    // var ssID = '1UT7O5soGVwHUQaGCE7ujVqLOpqN3EAYCRtHR7J4Pzs4';
+    
+    // sheet on google sheet
+    var rng = 'Sheet1';
+
+    var params = 
+    {
+        spreadsheetId: ssID,  // The ID of the spreadsheet to retrieve data from.
+    };
+
+    // update a cell range in Google Sheets
+    var batchUpdateValuesRequestBody = 
+    {
+        // How the input data should be interpreted.
+        valueInputOption: 'RAW',  // TODO: Update placeholder value.
+
+        // The new values to apply to the spreadsheet.
+        data: [
+            {
+                range: "Sheet1!" + cellColumn + cellRow,  // cell location in Google Sheets
+                //majorDimension: "COLUMNS",
+                values: [[cellValue]]  // value/s to send
+            }
+        ],  // TODO: Update placeholder value.
+
+        // TODO: Add desired properties to the request body.
+    };
+                    
+    var request = gapi.client.sheets.spreadsheets.values.batchUpdate(params, batchUpdateValuesRequestBody);
+    request.then(function(response) 
+    {
+       // TODO: Change code below to process the `response` object:
+    }, function(reason) 
+    {
+        console.error('error: ' + reason.result.error.message);
+    });
+}
+
+// reading to Google Sheets
+function makeApiCallRead(valueOriginal, valueModified) 
+{  
+    if (valueOriginal == "Select Material:")  // blank option to show user they can click on the drop down menu
+    {
+        document.getElementById('Table_Section_Header').innerHTML = valueOriginal;
+		document.getElementById('Table_Section_Image').src = "";
+        if (document.getElementById("table1") != null)  
+        {
+            deleteTables();  // clear tables because nothing is selected
+        }
+    }
+	else if (valueOriginal != undefined && valueOriginal != "Select Material:")  // run the api when the data is not undefined
+	{
+    	// change text of material and its image
+		valueOriginal = valueOriginal.replace(/\s/g, "");
+		document.getElementById('Table_Section_Header').innerHTML = valueModified;
+		document.getElementById('Table_Section_Image').src = "/files/theme/" + valueOriginal + ".PNG";
+
+        // Google sheet page id
+        var ssID = "1ZcIsDq_8INVhSjVX3xs1r9g-5OQCVbKAx7Q4_slHCBE"
+        // var ssID = '1UT7O5soGVwHUQaGCE7ujVqLOpqN3EAYCRtHR7J4Pzs4';
+        var rng = 'Sheet1';
+
+        var params = 
+        {
+            spreadsheetId: ssID,  // The ID of the spreadsheet to retrieve data from.
+            range: rng,   // The A1 notation of the values to retrieve.
+        };
+                
+        var request = gapi.client.sheets.spreadsheets.values.get(params);
+        request.then(function(response) 
+        {
+            // TODO: Change code below to process the `response` object:
+            console.log(response.result);
+            populatesheet(valueModified, response.result);
+        }, function(reason) 
+        {
+            console.error('error: ' + reason.result.error.message);
+        });
+    }
+}
             
     function initClient() 
     {

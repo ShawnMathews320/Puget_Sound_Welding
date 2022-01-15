@@ -25,7 +25,7 @@
     <!-- all of our drop down menus -->
     <div class="wrap-flex">
         <form>
-            <select id="DropDownAluminum" name = "AluminumDropdown" onchange="makeApiCall(this.value, 'Aluminum ' + this.value)">
+            <select id="DropDownAluminum" name = "AluminumDropdown" onchange="makeApiCallRead(this.value, 'Aluminum ' + this.value)">
                 <option value="Select Material:">Select Material:</option>
                 <option value = "Pipes">Pipes</option>
                 <option value = "Round Bars">Round Bars</option>
@@ -39,7 +39,7 @@
         </form>
 
         <form>
-            <select id="DropDownSS" name = "StainlessSteelDropdown" onchange="makeApiCall(this.value, 'Stainless Steel ' + this.value)">
+            <select id="DropDownSS" name = "StainlessSteelDropdown" onchange="makeApiCallRead(this.value, 'Stainless Steel ' + this.value)">
                 <option value="Select Material:">Select Material:</option>
                 <option value = "Pipes">Pipes</option>
                 <option value = "Round Bars">Round Bars</option>
@@ -53,7 +53,7 @@
         </form>
 
         <form>
-            <select id="DropDownCS" name = "CarbonSteelDropdown" onchange="makeApiCall(this.value, 'Carbon Steel ' + this.value)">
+            <select id="DropDownCS" name = "CarbonSteelDropdown" onchange="makeApiCallRead(this.value, 'Carbon Steel ' + this.value)">
                 <option value="Select Material:">Select Material:</option>
                 <option value = "Pipes">Pipes</option>
                 <option value = "Round Bars">Round Bars</option>
@@ -94,7 +94,7 @@
             <h1 id="editInputLabel"></h1>
             <label id="">Change Current Count</label>
             <input name="ViewChanges" class="editInputSpacing" type="text" id="editInput" name="editInput" placeholder="Enter new integer">  
-            <button type='button' onclick="modalBodyButtons(0)" class="modalBodySpacing" id="modalSubtract1">View Changes</button>
+            <button type='button' onclick="modalBodyButtons(0)" class="modalBodySpacing" id="modalSubtract1">Submit Changes</button>
 
             <label id="">Quick Add/Subtract</label>
             <button type='button' onclick="modalBodyButtons(1)" id="modalAdd1">Add 1</button>

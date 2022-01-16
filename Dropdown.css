@@ -158,25 +158,13 @@ label{
   margin-bottom: 1%;
 }
 
-@keyframes effect {
-  0% {
-      background: linear-gradient(
-          yellow);
-      -webkit-background-clip: background;
-  }
-
-  100% {
-      background: linear-gradient(
-          white);
-      -webkit-background-clip: background;
-  }
+.colorAnimations{
+  background:white;
+  transition:2s ease;
+  -moz-transition:2s ease;
+  -webkit-transition:2s ease;
 }
 
-.cell-Animation {
-  background-color: yellow;
-  background-image: linear-gradient(to right, rgba(255, 0, 0, 0.9) 25%, rgba(255, 0, 0, 0.1) 50%, rgba(255, 0, 0, 0.9) 75%);
-  color: none;
-  height: 100%;
-  width: 20%;
-  animation: 4s linear 0s infinite alternate move-eye;
+.colorAnimations.clicked{
+  background:yellow;
 }

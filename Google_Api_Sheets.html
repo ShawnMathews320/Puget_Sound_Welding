@@ -93,8 +93,7 @@
         <form onsubmit="return false" class="modal-wrap-flex">
             <h1 id="editInputLabel"></h1>
             <label id="">Change Current Count</label>
-            <input name="ViewChanges" class="editInputSpacing" type="text" id="editInput" name="editInput" placeholder="Enter new integer">  
-            <button type='button' onclick="modalBodyButtons(0)" class="modalBodySpacing" id="modalSubtract1">Submit Changes</button>
+            <input name="ViewChanges" onchange="modalBodyButtons(0)" class="modalBodySpacing" type="text" id="editInput" name="editInput" placeholder="Enter new integer">  
 
             <label id="">Quick Add/Subtract</label>
             <button type='button' onclick="modalBodyButtons(1)" id="modalAdd1">Add 1</button>

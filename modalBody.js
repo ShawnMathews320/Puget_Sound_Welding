@@ -74,7 +74,7 @@ function modalConfirmButton()
         tableCell.textContent = tmp + " (Click to Edit)";
 
         // update table cell in google sheets
-        makeApiCallWrite(parseInt(tableCell.className), parseInt(tableCell.id) + 1, tmp);
+        makeApiCallWrite(parseInt(tableCell.name), parseInt(tableCell.id) + 1, tmp);
 
         // close modal
         modal.style.display = "none";
@@ -82,20 +82,16 @@ function modalConfirmButton()
         // scroll to cell so user can see cell that was changed
         document.getElementById(cellLocation).scrollIntoView({behavior: "smooth", block: "end", inline: "nearest"});
 
-        //tableCell.className = "cell-Animation";
-        // document.getElementById("myDIV").style.backgroundClip = "effect";
-        
-        // return cell's color to white
-        tableCell.style.backgroundColor = "white";  
+        // color animation
+        $(tableCell).toggleClass('clicked');  
     }
     else
     {
         alert("No changes have been made!");
-    }
-    
+    }    
 }
 
-function createCellModal(location, rawValue, tableHeader, tableSubheader)
+function createCellModal(location, rawValue)
     {  
         // scroll to cell so it is in view while modal opens
         document.getElementById(location).scrollIntoView({behavior: "smooth", block: "end", inline: "nearest"});
@@ -108,9 +104,6 @@ function createCellModal(location, rawValue, tableHeader, tableSubheader)
 
         // find our cell
         var ourCell = document.getElementById(location);
-
-        // make the cell's background yellow so it stands out
-        ourCell.style.backgroundColor = "yellow";
 
         // Get the modal
         var modal = document.getElementById("myModal");
@@ -127,23 +120,23 @@ function createCellModal(location, rawValue, tableHeader, tableSubheader)
         document.getElementById("editInputLabel").innerHTML = "Current Item Count: " + rawValue;
 
         // if the last char is an s
-        if (tableHeader.slice(-1) == s)
+        if (ourCell.value.slice(-1) == 's')
         {
             if (rawValue == 1)  // 1 is singular, so remove s
             {
-                tableHeader = tableHeader.slice(0, -1);
+                ourCell.value = ourCell.value.slice(0, -1);
             }
         }
-        else  // last char is not an s
+        else if (ourCell.value.slice(-1) != 's' && ourCell.value.slice(-1) != " ")  // last char is not an s
         {
             if (rawValue != 1)  // everything other than 1 is singular, so add s
             {
-                tableHeader += "s";
+                ourCell.value += 's';
             }
         }
 
         // add unique text to header
-        document.getElementById("HeaderModal").innerHTML = rawValue + " " + tableHeader + " - (" + tableSubheader + ")";
+        document.getElementById("HeaderModal").innerHTML = rawValue + " " + ourCell.value;
 
         // // add unique text to subheader
         //document.getElementById("SubheaderModal").innerHTML = tableSubheader;
@@ -152,7 +145,7 @@ function createCellModal(location, rawValue, tableHeader, tableSubheader)
         span.onclick = function() 
         {
             modal.style.display = "none";
-            ourCell.style.backgroundColor = "white";  // return cell's color to white
+            $(ourCell).toggleClass('clicked');  // color animation
         }
 
         // When the user clicks anywhere outside of the modal, close it
@@ -161,7 +154,7 @@ function createCellModal(location, rawValue, tableHeader, tableSubheader)
             if (event.target == modal) 
             {
                 modal.style.display = "none";
-                ourCell.style.backgroundColor = "white";  // return cell's color to white
+                $(ourCell).toggleClass('clicked');  // color animation
             }
         }
     }
@@ -268,19 +261,33 @@ function createCellModal(location, rawValue, tableHeader, tableSubheader)
                             cell.style.borderColor = "Black";
                             cell.style.borderStyle = "solid";
                             cell.style.borderWidth = "1px";
-                            cell.style.padding = "10px";
+                            cell.style.padding = "10px";                            
                             var cellText = document.createTextNode(result.values[rlength][col]);
                             cell.style.color = "black";
                         }	
             
                         // these are the editable cells
                         if(col + 1 == result.values[allRows - 1].length && headerRows != 1 && headerRows != 2 && headerRows != 3)
-                        {
+                        {   
+                            // add cell to this class
+                            cell.className = "colorAnimations";
+
+                            $(function()
+                            { 
+                                $(cell).click(function()
+                                { 
+                                    $(this).toggleClass('clicked') 
+                                }) 
+                            });
+
+                            // header of cell
+                            cell.value = nameOfHeader + " - (" + nameOfSubheader + ")";
+
                             // add text to cell's textContent
                             cellText.textContent += " (Click to Edit)";   
 
                             // column of cell on Google Sheet
-                            cell.className  = (col + 1)
+                            cell.name  = (col + 1)
                             
                             // make cell's id unique
                             cell.id = rlength;
@@ -288,7 +295,7 @@ function createCellModal(location, rawValue, tableHeader, tableSubheader)
                             // cells perform this function when they are clicked
                             cell.onclick = function()
                             { 
-                                createCellModal(this.id, this.textContent, nameOfHeader, nameOfSubheader);  // send the cells unique id and cellText
+                                createCellModal(this.id, this.textContent);  // send the cells unique id and cellText
                             };                             
                         }
                         
@@ -450,8 +457,8 @@ function calculateCellLetter(valueToConvert)
 // writing to Google Sheets
 function makeApiCallWrite(cellColumn, cellRow, cellValue) 
 {
+    // assign char to variable
     cellColumn = calculateCellLetter(cellColumn);
-    console.log(cellColumn);
 
     var ssID = "1ZcIsDq_8INVhSjVX3xs1r9g-5OQCVbKAx7Q4_slHCBE"
     // var ssID = '1UT7O5soGVwHUQaGCE7ujVqLOpqN3EAYCRtHR7J4Pzs4';

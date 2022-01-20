@@ -4,12 +4,13 @@ var sheetCellColumnLocation;  // so we can find our cell column on Google Sheets
 var sheetCellRowLocation;  // so we can find our cell row on Google Sheets
 var onlyOneCurrentCount = false; // we only want the current count var to be changed once each time the modal is opened
 var currentCount;  // value from cell
+var isLoggedIn = false;  // tells if the user is logged in
 
 function modalBodyButtons(Value)
 {
     var modalBodyHeader = document.getElementById("editInputLabel").innerHTML;  // get the header text of the modal
     var txtBoxValue = parseInt(document.getElementsByName("ViewChanges")[0].value);
-    
+
     if (!onlyOneCurrentCount)
     {
         onlyOneCurrentCount = true;
@@ -30,15 +31,19 @@ function modalBodyButtons(Value)
     {
         if (txtBoxValue != currentCount)  // do nothing if the value is already this
         {
-            if (Number.isInteger(txtBoxValue))  // number is valid integer
+            if (isNaN(txtBoxValue) || txtBoxValue < 0)  // non-integer or negative so don't let the input pass and alert the user
+            {
+                alert("Enter a valid positive integer (i.e. 1, 2, 3)");
+            } 
+            else // number is valid integer
             {
                 document.getElementById("editInputLabel").innerHTML = "Changed Count From " + currentCount + " to " + txtBoxValue;
-                tmp = txtBoxValue;
+                tmp = txtBoxValue;                
             }
-            else  // non-integer so don't let the input pass and alert the user
-            {
-                alert("Enter a valid integer (i.e. 1, 2, 3)");
-            } 
+        }
+        else  // tell user that the value is already this
+        {
+            alert("Count is already " + txtBoxValue)
         }
     }
     else if (Value == 1)  // add to item count
@@ -119,19 +124,19 @@ function createCellModal(location, rawValue)
 
         document.getElementById("editInputLabel").innerHTML = "Current Item Count: " + rawValue;
 
-        // if the last char is an s
-        if (ourCell.value.slice(-1) == 's')
+        // making the count singular or plural
+        if (ourCell.value.includes("s - "))  // if the last char is an s
         {
             if (rawValue == 1)  // 1 is singular, so remove s
             {
-                ourCell.value = ourCell.value.slice(0, -1);
+                ourCell.value = ourCell.value.replace("s -", " -");
             }
         }
-        else if (ourCell.value.slice(-1) != 's' && ourCell.value.slice(-1) != " ")  // last char is not an s
+        else if (ourCell.value.includes(" - "))  // last char is not an s
         {
             if (rawValue != 1)  // everything other than 1 is singular, so add s
             {
-                ourCell.value += 's';
+                ourCell.value = ourCell.value.replace(" - ", "s - ");
             }
         }
 
@@ -502,6 +507,11 @@ function makeApiCallWrite(cellColumn, cellRow, cellValue)
 // reading to Google Sheets
 function makeApiCallRead(valueOriginal, valueModified) 
 {  
+    if (isLoggedIn)
+    {
+        console.log("yippeee!");
+    }
+    
     if (valueOriginal == "Select Material:")  // blank option to show user they can click on the drop down menu
     {
         document.getElementById('Table_Section_Header').innerHTML = valueOriginal;
@@ -520,7 +530,6 @@ function makeApiCallRead(valueOriginal, valueModified)
 
         // Google sheet page id
         var ssID = "1ZcIsDq_8INVhSjVX3xs1r9g-5OQCVbKAx7Q4_slHCBE"
-        // var ssID = '1UT7O5soGVwHUQaGCE7ujVqLOpqN3EAYCRtHR7J4Pzs4';
         var rng = 'Sheet1';
 
         var params = 
@@ -533,7 +542,7 @@ function makeApiCallRead(valueOriginal, valueModified)
         request.then(function(response) 
         {
             // TODO: Change code below to process the `response` object:
-            console.log(response.result);
+            //console.log(response.result);
             populatesheet(valueModified, response.result);
         }, function(reason) 
         {
@@ -541,7 +550,88 @@ function makeApiCallRead(valueOriginal, valueModified)
         });
     }
 }
-            
+    
+// reading to Google Sheets
+function makeApiCallReadLogin() 
+{  
+    // Google sheet page id
+        var ssID = "1ZcIsDq_8INVhSjVX3xs1r9g-5OQCVbKAx7Q4_slHCBE"
+        var rng = 'Sheet2';
+
+        var params = 
+        {
+            spreadsheetId: ssID,  // The ID of the spreadsheet to retrieve data from.
+            range: rng,   // The A1 notation of the values to retrieve.
+        };
+                
+        var request = gapi.client.sheets.spreadsheets.values.get(params);
+        request.then(function(response) 
+        {
+            // TODO: Change code below to process the `response` object:
+            //console.log(response.result);
+            checkLogin(response.result);
+        }, function(reason) 
+        {
+            console.error('error: ' + reason.result.error.message);
+        });
+}
+
+function checkLogin(result)
+{
+    // (B) ENCRYPT & DECRYPT FUNCTIONS
+    var crypt =
+    {
+        // (B1) THE SECRET KEY
+        secret : "ClientSideEncryptionIsBAD",
+    
+        // (B2) ENCRYPT
+        encrypt : function (clear) 
+        {
+            var cipher = CryptoJS.AES.encrypt(clear, crypt.secret);
+            cipher = cipher.toString();
+            return cipher;
+        },
+    
+        // (B3) DECRYPT
+        decrypt : function (cipher) 
+        {
+            var decipher = CryptoJS.AES.decrypt(cipher, crypt.secret);
+            decipher = decipher.toString(CryptoJS.enc.Utf8);
+            return decipher;
+        }
+    }
+    
+    // (C) TEST
+    // (C1) ENCRYPT CLEAR TEXT
+    var cipherUsername = crypt.encrypt(document.getElementsByName("loginUsername")[0].value);
+    var cipherPassword = crypt.encrypt(document.getElementsByName("loginPassword")[0].value);
+
+    console.log("Username is: " + cipherUsername + "\n Password is: " + cipherPassword);
+    
+    // (C2) DECRYPT CIPHER TEXT
+    // var decipherUsername = crypt.decrypt();
+    // var decipherPassword = crypt.decrypt();
+
+    // goes through all cells in Google Sheet
+    for(var allRows=1; allRows<result.values.length; allRows++)  
+    {   
+        if (result.values[allRows].length == 0) 
+        {
+            break;  // no cells left to read so end it
+        } 
+
+        // compare user input with hash
+        if (crypt.decrypt(result.values[allRows][0]) == document.getElementsByName("loginUsername")[0].value 
+        && crypt.decrypt(result.values[allRows][1]) == document.getElementsByName("loginPassword")[0].value)
+        {
+            console.log("success!");
+            window.location = "/INVENTORY.html";
+            isLoggedIn = true;
+        }
+        		 
+    }
+}
+
     function initClient() 
     {
         // TODO: Update placeholder with desired API key.

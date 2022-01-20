@@ -76,7 +76,7 @@ label{
   animation-duration: 0.4s
 }
 
-/* Add Animation */
+/* Add modal animation */
 @-webkit-keyframes animatetop {
   from {top:-300px; opacity:0} 
   to {top:0; opacity:1}
@@ -151,6 +151,44 @@ label{
 #ConfirmButtonModal{
   width: 175px;
   margin-bottom: 2%;
+}
+
+/* our employee login page */
+.loginPage{
+  font-family: Arial, Helvetica, sans-serif;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  flex-direction: column;
+}
+
+/* set width and spacing of username field */
+#loginUsername{
+  text-align: center;
+  width: 325px;
+  height: 35px;
+  margin-top: 2%;
+  margin-bottom: 1%;
+  font-size: 18px;
+}
+
+/* set width and spacing of password field */
+#loginPassword{
+  text-align: center;
+  width: 325px;
+  height: 35px;
+  margin-bottom: 1%;
+  font-size: 18px;
+}
+
+/* set width and spacing of login button */
+#loginSubmit{
+  width: 325px;
+  height: 40px;
+  font-size: 20px;
+  margin-top: 2%;
+  background:#fd0206;
+  color: white;
 }
 
 /* set spacing of input field */

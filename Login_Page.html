@@ -2,16 +2,20 @@
     <title></title>
     <link rel="stylesheet" href="/files/theme/Dropdown.css">
     <script src="/files/theme/modalBody.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.0.0/crypto-js.min.js"></script>
 </head>
-<body>
+<body onload="logoutVisibility()">
     <script async defer src="https://apis.google.com/js/api.js"
         onload="this.onload=function(){};handleClientLoad()"
         onreadystatechange="if (this.readyState === 'complete') this.onload()">
     </script>
 
-    <div class="modal-wrap-flex modalBodySpacing">
-        <img src="/files/theme/PSW_Logo_Backgroundless.png  ">
-        <input name="" onchange="" class="modalBodySpacing" type="text" id="editInput" name="editInput" placeholder="Enter new integer">
+    <div class="loginPage">
+        <img src="/files/theme/PSWLogo.png">
+        <input name="loginUsername" type="text" id="loginUsername" placeholder="Username">
+        <input name="loginPassword" type="password" id="loginPassword" placeholder="Password">
+        <button type='button' onclick="makeApiCallReadLogin()" id="loginSubmit">Login</button>
+        <button name="logoutButton" type='button' onclick="logout()" id="loginSubmit">Logout</button>
     </div>
      
 </body>

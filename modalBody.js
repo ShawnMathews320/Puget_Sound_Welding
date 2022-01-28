@@ -4,7 +4,6 @@ var sheetCellColumnLocation;  // so we can find our cell column on Google Sheets
 var sheetCellRowLocation;  // so we can find our cell row on Google Sheets
 var onlyOneCurrentCount = false; // we only want the current count var to be changed once each time the modal is opened
 var currentCount;  // value from cell
-var isLoggedIn = false;  // tells if the user is logged in
 
 function modalBodyButtons(Value)
 {
@@ -272,7 +271,8 @@ function createCellModal(location, rawValue)
                         }	
             
                         // these are the editable cells
-                        if(col + 1 == result.values[allRows - 1].length && headerRows != 1 && headerRows != 2 && headerRows != 3)
+                        if(col + 1 == result.values[allRows - 1].length && headerRows != 1 && headerRows != 2 && headerRows != 3
+                            && sessionStorage.getItem("loggedIn") != null)
                         {   
                             // add cell to this class
                             cell.className = "colorAnimations";
@@ -465,7 +465,7 @@ function makeApiCallWrite(cellColumn, cellRow, cellValue)
     // assign char to variable
     cellColumn = calculateCellLetter(cellColumn);
 
-    var ssID = "1ZcIsDq_8INVhSjVX3xs1r9g-5OQCVbKAx7Q4_slHCBE"
+    var ssID = "1zwQOsj40vHCodPsd1gtGbgYE-fwmjB5K3MYNvzKrF1M"
     // var ssID = '1UT7O5soGVwHUQaGCE7ujVqLOpqN3EAYCRtHR7J4Pzs4';
     
     // sheet on google sheet
@@ -507,11 +507,6 @@ function makeApiCallWrite(cellColumn, cellRow, cellValue)
 // reading to Google Sheets
 function makeApiCallRead(valueOriginal, valueModified) 
 {  
-    if (isLoggedIn)
-    {
-        console.log("yippeee!");
-    }
-    
     if (valueOriginal == "Select Material:")  // blank option to show user they can click on the drop down menu
     {
         document.getElementById('Table_Section_Header').innerHTML = valueOriginal;
@@ -529,7 +524,7 @@ function makeApiCallRead(valueOriginal, valueModified)
 		document.getElementById('Table_Section_Image').src = "/files/theme/" + valueOriginal + ".PNG";
 
         // Google sheet page id
-        var ssID = "1ZcIsDq_8INVhSjVX3xs1r9g-5OQCVbKAx7Q4_slHCBE"
+        var ssID = "1zwQOsj40vHCodPsd1gtGbgYE-fwmjB5K3MYNvzKrF1M"
         var rng = 'Sheet1';
 
         var params = 
@@ -555,7 +550,7 @@ function makeApiCallRead(valueOriginal, valueModified)
 function makeApiCallReadLogin() 
 {  
     // Google sheet page id
-        var ssID = "1ZcIsDq_8INVhSjVX3xs1r9g-5OQCVbKAx7Q4_slHCBE"
+        var ssID = "1zwQOsj40vHCodPsd1gtGbgYE-fwmjB5K3MYNvzKrF1M"
         var rng = 'Sheet2';
 
         var params = 
@@ -578,67 +573,73 @@ function makeApiCallReadLogin()
 
 function checkLogin(result)
 {
-    // (B) ENCRYPT & DECRYPT FUNCTIONS
-    var crypt =
+    if (document.getElementsByName("loginUsername")[0].value != "" && document.getElementsByName("loginPassword")[0].value != "")
     {
-        // (B1) THE SECRET KEY
-        secret : "ClientSideEncryptionIsBAD",
-    
-        // (B2) ENCRYPT
-        encrypt : function (clear) 
+        // (B) ENCRYPT & DECRYPT FUNCTIONS
+        var crypt =
         {
-            var cipher = CryptoJS.AES.encrypt(clear, crypt.secret);
-            cipher = cipher.toString();
-            return cipher;
-        },
-    
-        // (B3) DECRYPT
-        decrypt : function (cipher) 
-        {
-            var decipher = CryptoJS.AES.decrypt(cipher, crypt.secret);
-            decipher = decipher.toString(CryptoJS.enc.Utf8);
-            return decipher;
+            // (B1) THE SECRET KEY
+            secret : document.getElementsByName("loginUsername")[0].value + document.getElementsByName("loginPassword")[0].value
+            + "ClientSideEncryptionIsBAD",
+        
+            // (B2) ENCRYPT
+            encrypt : function (clear) 
+            {
+                var cipher = CryptoJS.AES.encrypt(clear, crypt.secret);
+                cipher = cipher.toString();
+                return cipher;
+            },
+        
+            // (B3) DECRYPT
+            decrypt : function (cipher) 
+            {
+                var decipher = CryptoJS.AES.decrypt(cipher, crypt.secret);
+                decipher = decipher.toString(CryptoJS.enc.Utf8);
+                return decipher;
+            }
         }
+        
+        // (C) TEST
+        // (C1) ENCRYPT CLEAR TEXT
+        var cipherUsername = crypt.encrypt(document.getElementsByName("loginUsername")[0].value);
+        var cipherPassword = crypt.encrypt(document.getElementsByName("loginPassword")[0].value);
+
+        console.log("Username is: " + cipherUsername + "\n Password is: " + cipherPassword);
+        
+        // (C2) DECRYPT CIPHER TEXT
+        // var decipherUsername = crypt.decrypt();
+        // var decipherPassword = crypt.decrypt();
+
+        // goes through all cells in Google Sheet
+    
+        for(var allRows=1; allRows<result.values.length; allRows++)  
+        {   
+            // compare user input with hash
+            if (crypt.decrypt(result.values[allRows][0]) == document.getElementsByName("loginUsername")[0].value 
+            && crypt.decrypt(result.values[allRows][1]) == document.getElementsByName("loginPassword")[0].value)
+            {
+                window.location = "/INVENTORY.html";  // redirect to this page
+                sessionStorage.setItem("loggedIn", "True");  // user is now logged in
+            }    		 
+        }
+        if (sessionStorage.getItem("loggedIn") == null)
+                {
+                    alert("Incorrect login credentials");
+                }
     }
-    
-    // (C) TEST
-    // (C1) ENCRYPT CLEAR TEXT
-    var cipherUsername = crypt.encrypt(document.getElementsByName("loginUsername")[0].value);
-    var cipherPassword = crypt.encrypt(document.getElementsByName("loginPassword")[0].value);
-
-    console.log("Username is: " + cipherUsername + "\n Password is: " + cipherPassword);
-    
-    // (C2) DECRYPT CIPHER TEXT
-    // var decipherUsername = crypt.decrypt();
-    // var decipherPassword = crypt.decrypt();
-
-    // goes through all cells in Google Sheet
-    for(var allRows=1; allRows<result.values.length; allRows++)  
-    {   
-        if (result.values[allRows].length == 0) 
-        {
-            break;  // no cells left to read so end it
-        } 
-
-        // compare user input with hash
-        if (crypt.decrypt(result.values[allRows][0]) == document.getElementsByName("loginUsername")[0].value 
-        && crypt.decrypt(result.values[allRows][1]) == document.getElementsByName("loginPassword")[0].value)
-        {
-            console.log("success!");
-            window.location = "/INVENTORY.html";
-            isLoggedIn = true;
-        }
-        		 
+    else
+    {
+        alert("Cannot have empty credentials");
     }
 }
 
     function initClient() 
     {
         // TODO: Update placeholder with desired API key.
-        var API_KEY = 'AIzaSyDOV7TpzBG2yClrGd8bkqzxrP3KU9Iftfw';  
+        var API_KEY = 'AIzaSyC6E29jQJC77EwTSgKBrKTpz6YgZzDqwso';  
         
         // TODO: Update placeholder with desired client ID.
-        var CLIENT_ID = '86890114762-047sa8cboeh8csv1127spnlniu90dn6h.apps.googleusercontent.com';  
+        var CLIENT_ID = '887187101828-4svlatr5qigf9m5mkra0i0gve5goop3q.apps.googleusercontent.com';  
         
         // TODO: Authorize using one of the following scopes:
         //   'https://www.googleapis.com/auth/drive'
@@ -659,7 +660,28 @@ function checkLogin(result)
                 //updateSignInStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
             });
     }
+     
+    function logout()
+    {
+        sessionStorage.clear();
         
+        // hide button because user is no longer logged in
+        document.getElementsByName("logoutButton")[0].style.visibility = "hidden";
+        alert("Successfully Logged Out");
+    }
+
+    function logoutVisibility()
+    {        
+        if (sessionStorage.getItem("loggedIn") != null)  // user is logged in so show the logout button
+        {
+            document.getElementsByName("logoutButton")[0].style.visibility = "visible";
+        }
+        else if (sessionStorage.getItem("loggedIn") == null)  // user is not logged in so dont show the logout button
+        {
+            document.getElementsByName("logoutButton")[0].style.visibility = "hidden";
+        }
+    }
+
     function handleClientLoad() 
     {
         gapi.load('client:auth2', initClient);
